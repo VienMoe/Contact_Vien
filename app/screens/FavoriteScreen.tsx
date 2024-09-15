@@ -4,11 +4,14 @@ import {
   Text,
   FlatList,
   TextInput,
-  Button,
-  Alert,
   TouchableOpacity,
   StyleSheet,
+  Alert,
+  Modal,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
+import AntDesign from "@expo/vector-icons/AntDesign";
 
 interface Favorite {
   number: string;
@@ -16,18 +19,25 @@ interface Favorite {
 }
 
 const FavoriteScreen: React.FC = () => {
-  // State for favorite contacts
   const [favorites, setFavorites] = useState<Favorite[]>([
     { number: "0123456789", name: "John Doe" },
     { number: "0987654321", name: "Jane Smith" },
+    { number: "0345678901", name: "Le Thi C" },
+    { number: "0456789012", name: "Vo Van D" },
+    { number: "0567890123", name: "Hoang Thi E" },
+    { number: "0678901234", name: "Phan Van F" },
   ]);
 
-  // State to store new favorite contact
   const [newFavoriteNumber, setNewFavoriteNumber] = useState("");
   const [newFavoriteName, setNewFavoriteName] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Function to add a favorite contact
+  // State to manage modal visibility
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+  // State to manage delete mode
+  const [isDeleteMode, setIsDeleteMode] = useState(false);
+
   const handleAddFavorite = () => {
     if (newFavoriteNumber.trim() && newFavoriteName.trim()) {
       if (!favorites.some((fav) => fav.number === newFavoriteNumber)) {
@@ -37,6 +47,7 @@ const FavoriteScreen: React.FC = () => {
         ]);
         setNewFavoriteNumber("");
         setNewFavoriteName("");
+        setIsModalVisible(false);
       } else {
         Alert.alert(
           "Error",
@@ -48,9 +59,26 @@ const FavoriteScreen: React.FC = () => {
     }
   };
 
-  // Function to delete a favorite contact
+  // Function to delete a specific favorite
   const handleDeleteFavorite = (number: string) => {
-    setFavorites(favorites.filter((fav) => fav.number !== number));
+    Alert.alert(
+      "Confirm Delete",
+      "Are you sure you want to delete this favorite?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          onPress: () => {
+            setFavorites((prevFavorites) =>
+              prevFavorites.filter((fav) => fav.number !== number)
+            );
+          },
+        },
+      ]
+    );
   };
 
   // Filter favorites based on search query
@@ -73,7 +101,14 @@ const FavoriteScreen: React.FC = () => {
           onPress={() => setSearchQuery("")}
           style={styles.searchButton}
         >
-          <Text style={styles.searchButtonText}>Tìm kiếm</Text>
+          <Text style={styles.searchButtonText}>Search</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.deleteButton}
+          onPress={() => setIsDeleteMode(!isDeleteMode)}
+        >
+          <AntDesign name="delete" size={24} color="white" />
         </TouchableOpacity>
       </View>
 
@@ -82,35 +117,67 @@ const FavoriteScreen: React.FC = () => {
         keyExtractor={(item) => item.number}
         renderItem={({ item }) => (
           <View style={styles.favoriteItem}>
-            <Text style={styles.favoriteText}>
-              {item.name}: {item.number}
-            </Text>
-            <TouchableOpacity
-              style={styles.deleteButton}
-              onPress={() => handleDeleteFavorite(item.number)}
-            >
-              <Text style={styles.deleteText}>Delete</Text>
-            </TouchableOpacity>
+            <View style={styles.favoriteTextContainer}>
+              <Text style={styles.favoriteText}>
+                {item.name}: {item.number}
+              </Text>
+              {isDeleteMode && (
+                <TouchableOpacity
+                  onPress={() => handleDeleteFavorite(item.number)}
+                  style={styles.minusButton}
+                >
+                  <AntDesign name="minuscircleo" size={24} color="red" />
+                </TouchableOpacity>
+              )}
+            </View>
           </View>
         )}
       />
 
-      <TextInput
-        placeholder="Add name"
-        value={newFavoriteName}
-        onChangeText={setNewFavoriteName}
-        style={styles.input}
-      />
+      <TouchableOpacity
+        style={styles.addButton}
+        onPress={() => setIsModalVisible(true)}
+      >
+        <AntDesign name="pluscircleo" size={24} color="white" />
+      </TouchableOpacity>
 
-      <TextInput
-        placeholder="Add phone number"
-        value={newFavoriteNumber}
-        onChangeText={setNewFavoriteNumber}
-        keyboardType="numeric"
-        style={styles.input}
-      />
-
-      <Button title="Add to Favorites" onPress={handleAddFavorite} />
+      <Modal visible={isModalVisible} transparent={true} animationType="slide">
+        <KeyboardAvoidingView
+          style={styles.modalContainer}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Add Favorite Contact</Text>
+            <TextInput
+              placeholder="Name"
+              value={newFavoriteName}
+              onChangeText={setNewFavoriteName}
+              style={styles.input}
+            />
+            <TextInput
+              placeholder="Phone number"
+              value={newFavoriteNumber}
+              onChangeText={setNewFavoriteNumber}
+              keyboardType="numeric"
+              style={styles.input}
+            />
+            <View style={styles.modalButtonsContainer}>
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={handleAddFavorite}
+              >
+                <Text style={styles.modalButtonText}>Add</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={() => setIsModalVisible(false)}
+              >
+                <Text style={styles.modalButtonText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
     </View>
   );
 };
@@ -137,8 +204,14 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ddd",
   },
+  favoriteTextContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+  },
   favoriteText: {
     fontSize: 16,
+    flex: 1,
   },
   input: {
     borderBottomWidth: 1,
@@ -146,16 +219,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     paddingVertical: 8,
     paddingHorizontal: 12,
-  },
-  deleteButton: {
-    backgroundColor: "red",
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    borderRadius: 5,
-  },
-  deleteText: {
-    color: "#fff",
-    fontWeight: "bold",
+    flex: 1,
   },
   searchContainer: {
     flexDirection: "row",
@@ -169,6 +233,101 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   searchButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+  deleteButton: {
+    backgroundColor: "#007BFF",
+    padding: 10,
+    borderRadius: 50,
+    justifyContent: "center",
+    alignItems: "center",
+    marginLeft: 10,
+  },
+  minusButton: {
+    marginLeft: 10,
+    padding: 5,
+    borderRadius: 50,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  deleteActionsContainer: {
+    flexDirection: "row",
+    position: "absolute",
+    bottom: 20,
+    right: 20,
+    alignItems: "center",
+  },
+  deleteConfirmButton: {
+    backgroundColor: "red",
+    padding: 10,
+    borderRadius: 50,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 10,
+  },
+  deleteButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+    marginLeft: 5,
+  },
+  cancelButton: {
+    backgroundColor: "grey",
+    padding: 10,
+    borderRadius: 50,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  cancelButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+    marginLeft: 5,
+  },
+  addButton: {
+    backgroundColor: "#007BFF",
+    padding: 10,
+    borderRadius: 50,
+    justifyContent: "center",
+    alignItems: "center",
+    width: 60,
+    height: 60,
+    position: "absolute",
+    bottom: 20,
+    right: 20,
+    elevation: 5,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    width: "80%",
+    backgroundColor: "#fff",
+    padding: 20,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  modalTitle: {
+    fontSize: 18,
+    marginBottom: 15,
+  },
+  modalButtonsContainer: {
+    flexDirection: "row",
+    marginTop: 15,
+    width: "100%",
+    justifyContent: "space-between",
+  },
+  modalButton: {
+    backgroundColor: "#007BFF",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalButtonText: {
     color: "#fff",
     fontWeight: "bold",
   },

@@ -8,8 +8,12 @@ import {
   StyleSheet,
   Alert,
   TouchableOpacity,
+  Modal,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
+import AntDesign from "@expo/vector-icons/AntDesign";
 import { RootStackParamList, Contact } from "../types"; // Adjust import path as needed
 
 type ContactsScreenNavigationProp = StackNavigationProp<
@@ -22,7 +26,7 @@ interface Props {
 }
 
 const ContactsScreen: React.FC<Props> = ({ navigation }) => {
-  // Sample state and handlers
+  // State for contacts and modal
   const [contacts, setContacts] = useState<Contact[]>([
     {
       id: "1",
@@ -36,10 +40,35 @@ const ContactsScreen: React.FC<Props> = ({ navigation }) => {
       phone: "0987654321",
       email: "example@example.com",
     },
+    {
+      id: "3",
+      name: "Le Thi C",
+      phone: "0345678901",
+      email: "lethi.c@example.com",
+    },
+    {
+      id: "4",
+      name: "Vo Van D",
+      phone: "0456789012",
+      email: "vovand@example.com",
+    },
+    {
+      id: "5",
+      name: "Hoang Thi E",
+      phone: "0567890123",
+      email: "hoangthi.e@example.com",
+    },
+    {
+      id: "6",
+      name: "Phan Van F",
+      phone: "0678901234",
+      email: "phanvan.f@example.com",
+    },
   ]);
 
   const [newName, setNewName] = useState("");
   const [newPhone, setNewPhone] = useState("");
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   const handleAddContact = () => {
     if (newName.trim() && newPhone.trim()) {
@@ -56,8 +85,9 @@ const ContactsScreen: React.FC<Props> = ({ navigation }) => {
       });
       setNewName("");
       setNewPhone("");
+      setIsModalVisible(false); // Close the modal after adding
     } else {
-      Alert.alert("Lỗi", "Vui lòng nhập đầy đủ tên và số điện thoại");
+      Alert.alert("Error", "Please enter both name and phone number");
     }
   };
 
@@ -72,7 +102,7 @@ const ContactsScreen: React.FC<Props> = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Danh bạ</Text>
+      <Text style={styles.title}>Contacts</Text>
       <FlatList
         data={sortedContacts}
         keyExtractor={(item) => item.id}
@@ -88,25 +118,54 @@ const ContactsScreen: React.FC<Props> = ({ navigation }) => {
             </View>
           </TouchableOpacity>
         )}
-        ItemSeparatorComponent={() => <View style={styles.separator} />} // Add separator between items
+        ItemSeparatorComponent={() => <View style={styles.separator} />}
       />
-      {/* Add contact input and button */}
-      <View style={styles.addContactContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="Tên liên hệ"
-          value={newName}
-          onChangeText={setNewName}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Số điện thoại"
-          value={newPhone}
-          onChangeText={setNewPhone}
-          keyboardType="phone-pad"
-        />
-        <Button title="Thêm liên hệ" onPress={handleAddContact} />
-      </View>
+      {/* Add contact button */}
+      <TouchableOpacity
+        style={styles.addButton}
+        onPress={() => setIsModalVisible(true)}
+      >
+        <AntDesign name="pluscircleo" size={24} color="white" />
+      </TouchableOpacity>
+
+      {/* Modal for adding contact */}
+      <Modal visible={isModalVisible} transparent={true} animationType="slide">
+        <KeyboardAvoidingView
+          style={styles.modalContainer}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Add New Contact</Text>
+            <TextInput
+              placeholder="Name"
+              value={newName}
+              onChangeText={setNewName}
+              style={styles.input}
+            />
+            <TextInput
+              placeholder="Phone number"
+              value={newPhone}
+              onChangeText={setNewPhone}
+              keyboardType="phone-pad"
+              style={styles.input}
+            />
+            <View style={styles.modalButtonsContainer}>
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={handleAddContact}
+              >
+                <Text style={styles.modalButtonText}>Add</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.modalButton}
+                onPress={() => setIsModalVisible(false)}
+              >
+                <Text style={styles.modalButtonText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
     </View>
   );
 };
@@ -122,7 +181,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 20,
-    textAlign: "center", // Center the title
+    textAlign: "center",
   },
   contactItemContainer: {
     padding: 15,
@@ -149,8 +208,58 @@ const styles = StyleSheet.create({
     backgroundColor: "#ddd",
     marginVertical: 10,
   },
-  addContactContainer: {
-    marginTop: 20,
+  addButton: {
+    backgroundColor: "#007BFF",
+    padding: 10,
+    borderRadius: 50,
+    justifyContent: "center",
+    alignItems: "center",
+    width: 60,
+    height: 60,
+    position: "absolute",
+    bottom: 20,
+    right: 20,
+    elevation: 5,
+  },
+  addButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    width: "80%",
+    backgroundColor: "#fff",
+    padding: 20,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  modalTitle: {
+    fontSize: 18,
+    marginBottom: 15,
+  },
+  modalButtonsContainer: {
+    flexDirection: "row",
+    marginTop: 15,
+    width: "100%",
+    justifyContent: "space-between",
+  },
+  modalButton: {
+    backgroundColor: "#007BFF",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
   },
   input: {
     borderWidth: 1,
@@ -158,6 +267,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     padding: 10,
     marginBottom: 10,
+    width: "100%",
   },
 });
 
