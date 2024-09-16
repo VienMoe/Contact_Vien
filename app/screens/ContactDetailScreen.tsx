@@ -1,10 +1,9 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
-import { ContactDetailScreenRouteProp } from "../types"; // Adjust import path as needed
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { RootStackParamList } from "../types";
 
-interface Props {
-  route: ContactDetailScreenRouteProp;
-}
+type Props = NativeStackScreenProps<RootStackParamList, "ContactDetail">;
 
 const ContactDetailScreen: React.FC<Props> = ({ route }) => {
   const { contact } = route.params;
@@ -19,7 +18,6 @@ const ContactDetailScreen: React.FC<Props> = ({ route }) => {
   );
 };
 
-// Styles here
 const styles = StyleSheet.create({
   container: {
     flex: 1,

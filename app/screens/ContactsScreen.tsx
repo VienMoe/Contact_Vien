@@ -14,7 +14,7 @@ import {
 } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { RootStackParamList, Contact } from "../types"; // Adjust import path as needed
+import { RootStackParamList, Contact } from "../types";
 
 type ContactsScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -26,57 +26,57 @@ interface Props {
 }
 
 const ContactsScreen: React.FC<Props> = ({ navigation }) => {
-  // State for contacts and modal
   const [contacts, setContacts] = useState<Contact[]>([
     {
       id: "1",
       name: "Nguyen Van A",
       phone: "0123456789",
-      email: "example@example.com",
+      email: "a@gmail.com",
     },
     {
       id: "2",
       name: "Tran Thi B",
       phone: "0987654321",
-      email: "example@example.com",
+      email: "b@gmail.com",
     },
     {
       id: "3",
       name: "Le Thi C",
       phone: "0345678901",
-      email: "lethi.c@example.com",
+      email: "lethi.c@gmail.com",
     },
     {
       id: "4",
       name: "Vo Van D",
       phone: "0456789012",
-      email: "vovand@example.com",
+      email: "vovand@gmail.com",
     },
     {
       id: "5",
       name: "Hoang Thi E",
       phone: "0567890123",
-      email: "hoangthi.e@example.com",
+      email: "hoangthi.e@gmail.com",
     },
     {
       id: "6",
       name: "Phan Van F",
       phone: "0678901234",
-      email: "phanvan.f@example.com",
+      email: "phanvan.f@gmail.com",
     },
   ]);
 
   const [newName, setNewName] = useState("");
   const [newPhone, setNewPhone] = useState("");
+  const [newEmail, setNewEmail] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   const handleAddContact = () => {
-    if (newName.trim() && newPhone.trim()) {
+    if (newName.trim() && newPhone.trim() && newEmail.trim()) {
       const newContact = {
         id: Math.random().toString(),
         name: newName,
         phone: newPhone,
-        email: "",
+        email: newEmail,
       };
       setContacts((prevContacts) => {
         // Add new contact and sort alphabetically
@@ -85,7 +85,8 @@ const ContactsScreen: React.FC<Props> = ({ navigation }) => {
       });
       setNewName("");
       setNewPhone("");
-      setIsModalVisible(false); // Close the modal after adding
+      setNewEmail("");
+      setIsModalVisible(false);
     } else {
       Alert.alert("Error", "Please enter both name and phone number");
     }
@@ -120,7 +121,7 @@ const ContactsScreen: React.FC<Props> = ({ navigation }) => {
         )}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
       />
-      {/* Add contact button */}
+
       <TouchableOpacity
         style={styles.addButton}
         onPress={() => setIsModalVisible(true)}
@@ -128,7 +129,6 @@ const ContactsScreen: React.FC<Props> = ({ navigation }) => {
         <AntDesign name="pluscircleo" size={24} color="white" />
       </TouchableOpacity>
 
-      {/* Modal for adding contact */}
       <Modal visible={isModalVisible} transparent={true} animationType="slide">
         <KeyboardAvoidingView
           style={styles.modalContainer}
@@ -143,10 +143,16 @@ const ContactsScreen: React.FC<Props> = ({ navigation }) => {
               style={styles.input}
             />
             <TextInput
-              placeholder="Phone number"
+              placeholder="Number"
               value={newPhone}
               onChangeText={setNewPhone}
               keyboardType="phone-pad"
+              style={styles.input}
+            />
+            <TextInput
+              placeholder="Email"
+              value={newEmail}
+              onChangeText={setNewEmail}
               style={styles.input}
             />
             <View style={styles.modalButtonsContainer}>
@@ -202,6 +208,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#666",
     marginTop: 5,
+  },
+  contactItemEmail: {
+    fontSize: 18,
+    fontWeight: "bold",
   },
   separator: {
     height: 1,

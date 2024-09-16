@@ -2,28 +2,24 @@ import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
-import FontAwesome from "react-native-vector-icons/FontAwesome";
-
-// Screen imports
 import CallScreen from "./screens/CallScreen";
 import FavoriteScreen from "./screens/FavoriteScreen";
 import ContactsScreen from "./screens/ContactsScreen";
 import ContactDetailScreen from "./screens/ContactDetailScreen";
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
-// Stack Navigator for Contacts flow
 const ContactsStack = () => (
   <Stack.Navigator>
     <Stack.Screen name="Contacts" component={ContactsScreen} />
+    <Stack.Screen name="ContactDetail" component={ContactDetailScreen} />
   </Stack.Navigator>
 );
 
 export default function App() {
   return (
-    // NavigationContainer is essential and cannot be removed
-
     <Tab.Navigator
       screenOptions={({ route }) => ({
         tabBarIcon: ({ color, size }) => {
@@ -32,12 +28,12 @@ export default function App() {
           if (route.name === "Cuộc gọi") {
             iconName = "phone";
           } else if (route.name === "Yêu thích") {
-            iconName = "star";
+            iconName = "heart";
           } else if (route.name === "Danh bạ") {
             iconName = "address-book";
           }
 
-          return <FontAwesome name={iconName} size={size} color={color} />;
+          return <FontAwesome6 name={iconName} size={size} color={"black"} />;
         },
       })}
     >

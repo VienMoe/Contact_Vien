@@ -20,8 +20,8 @@ interface Favorite {
 
 const FavoriteScreen: React.FC = () => {
   const [favorites, setFavorites] = useState<Favorite[]>([
-    { number: "0123456789", name: "John Doe" },
-    { number: "0987654321", name: "Jane Smith" },
+    { number: "0123456789", name: "HAO" },
+    { number: "0987654321", name: "GIANG" },
     { number: "0345678901", name: "Le Thi C" },
     { number: "0456789012", name: "Vo Van D" },
     { number: "0567890123", name: "Hoang Thi E" },
@@ -31,11 +31,7 @@ const FavoriteScreen: React.FC = () => {
   const [newFavoriteNumber, setNewFavoriteNumber] = useState("");
   const [newFavoriteName, setNewFavoriteName] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-
-  // State to manage modal visibility
   const [isModalVisible, setIsModalVisible] = useState(false);
-
-  // State to manage delete mode
   const [isDeleteMode, setIsDeleteMode] = useState(false);
 
   const handleAddFavorite = () => {
@@ -59,7 +55,6 @@ const FavoriteScreen: React.FC = () => {
     }
   };
 
-  // Function to delete a specific favorite
   const handleDeleteFavorite = (number: string) => {
     Alert.alert(
       "Confirm Delete",
@@ -81,7 +76,6 @@ const FavoriteScreen: React.FC = () => {
     );
   };
 
-  // Filter favorites based on search query
   const filteredFavorites = favorites.filter((fav) =>
     fav.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -182,7 +176,6 @@ const FavoriteScreen: React.FC = () => {
   );
 };
 
-// Styles for the screen
 const styles = StyleSheet.create({
   container: {
     flex: 1,

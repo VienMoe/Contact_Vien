@@ -55,7 +55,10 @@ const CallScreen: React.FC = () => {
         call.id === id
           ? {
               ...call,
-              type: call.type === "incoming" ? "outgoing" : call.type,
+              type:
+                call.type === "incoming" || call.type === "missed"
+                  ? "outgoing"
+                  : call.type,
             }
           : call
       )
